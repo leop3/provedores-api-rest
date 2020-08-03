@@ -2,6 +2,7 @@ package lepo.provedoresapirest.controllers;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,14 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lepo.provedoresapirest.entities.DescuentoEntity;
+import lepo.provedoresapirest.entities.DocumentoEntity;
 import lepo.provedoresapirest.entities.ProveedorEntity;
-import lepo.provedoresapirest.reponse.DescuentoResponse;
 import lepo.provedoresapirest.reponse.ProveedorResponse;
 import lepo.provedoresapirest.reponse.Response;
+import lepo.provedoresapirest.reponse.SaldoResponse;
 import lepo.provedoresapirest.repositories.DescuentoRepository;
+import lepo.provedoresapirest.repositories.DocumentoRepository;
 import lepo.provedoresapirest.repositories.ProveedorRepository;
-import lepo.provedoresapirest.request.DescuentoRequest;
 
 @RestController
 @RequestMapping(path = "/proveedor")
@@ -34,6 +35,9 @@ public class ProveedorController {
 
 	@Autowired
 	DescuentoRepository descuentoRepo;
+
+	@Autowired
+	DocumentoRepository documentoRepo;
 
 	@GetMapping
 	public ResponseEntity<ProveedorResponse> getProveedores() {
@@ -177,6 +181,52 @@ public class ProveedorController {
 		} catch (Exception e) {
 			response.setMensaje("Se produjo un error interno.");
 			return new ResponseEntity<Response>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/saldo")
+	public ResponseEntity<SaldoResponse> getSaldoByProveedorId(@RequestParam Long id) {
+
+		SaldoResponse response = new SaldoResponse();
+
+		try {
+			Double monto = buscarMontoTotalDelProveedor(id);
+			response.setSaldo(monto);
+
+			response.setMensaje(monto == null ? "No tiene facturas." : "Se encontró el siguiente saldo.");
+			
+			return new ResponseEntity<>(response, HttpStatus.OK);
+
+		} catch (Exception e) {
+			response.setMensaje("Se produjo un error interno.");
+			return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	private Double buscarMontoTotalDelProveedor(Long proveedorId) {
+		try {
+			List<DocumentoEntity> documentos = documentoRepo
+					.findByProveedorIdAndFechaDeleteIsNullOrderByFechaInsertDesc(proveedorId);
+
+			if (documentos != null) {
+
+				List<Double> montos = documentos.stream()
+						.map(doc -> doc.getEstaPagada() ? new Double(0)
+								: doc.getTipoDocumento().getId().equals(2) ? doc.getMonto() * (-1) : doc.getMonto())
+						.collect(Collectors.toList());
+
+				Double montoTotal = new Double(0);
+
+				for (Double monto : montos) {
+					montoTotal += monto;
+				}
+				return montoTotal;
+			}
+
+			return null;
+
+		} catch (Exception e) {
+			throw new RuntimeException();
 		}
 	}
 }

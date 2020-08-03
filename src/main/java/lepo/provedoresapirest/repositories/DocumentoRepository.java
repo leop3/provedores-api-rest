@@ -15,4 +15,6 @@ public interface DocumentoRepository extends CrudRepository<DocumentoEntity, Lon
 	public DocumentoEntity findByIdAndFechaDeleteIsNull(Long id);
 
 	public DocumentoEntity findByIdAndFechaDeleteIsNullAndEstaPagadaIsFalse(Long id);
+
+	public List<DocumentoEntity> findByProveedorIdAndFechaDeleteIsNullOrderByFechaInsertDesc(Long proveedorId);
 }
