@@ -31,9 +31,6 @@ public class DocumentoEntity {
 	@Column(name = "monto")
 	private Double monto;
 
-	@Column(name = "monto_pagado")
-	private Double montoPagado;
-
 	@Column(name = "nroFactura")
 	private String nroFactura;
 
@@ -54,6 +51,20 @@ public class DocumentoEntity {
 
 	@Column(name = "fecha_delete")
 	private Date fechaDelete;
+
+	public DocumentoEntity() {
+	}
+
+	public DocumentoEntity(TipoDocumentoEntity tipoDocumento, ProveedorEntity proveedor, Double monto,
+			String nroFactura, Date fechaFactura, Date fechaInsert) {
+		super();
+		this.tipoDocumento = tipoDocumento;
+		this.proveedor = proveedor;
+		this.monto = monto;
+		this.nroFactura = nroFactura;
+		this.fechaFactura = fechaFactura;
+		this.fechaInsert = fechaInsert;
+	}
 
 	public Long getId() {
 		return id;
@@ -85,14 +96,6 @@ public class DocumentoEntity {
 
 	public void setMonto(Double monto) {
 		this.monto = monto;
-	}
-
-	public Double getMontoPagado() {
-		return montoPagado;
-	}
-
-	public void setMontoPagado(Double montoPagado) {
-		this.montoPagado = montoPagado;
 	}
 
 	public String getNroFactura() {
