@@ -23,6 +23,7 @@ import lepo.provedoresapirest.reponse.ProveedorResponse;
 import lepo.provedoresapirest.reponse.Response;
 import lepo.provedoresapirest.repositories.DescuentoRepository;
 import lepo.provedoresapirest.repositories.ProveedorRepository;
+import lepo.provedoresapirest.request.DescuentoRequest;
 
 @RestController
 @RequestMapping(path = "/proveedor")
@@ -72,36 +73,6 @@ public class ProveedorController {
 		} catch (Exception e) {
 			response.setMensaje("Se produjo un error interno.");
 			return new ResponseEntity<ProveedorResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	@GetMapping("/descuento")
-	public ResponseEntity<DescuentoResponse> getDescuentoByProveedor(@RequestParam Long id) {
-
-		DescuentoResponse response = new DescuentoResponse();
-
-		try {
-
-			ProveedorEntity proveedor = proveedorRepo.findById(id).orElse(null);
-
-			if (proveedor != null) {
-				DescuentoEntity descuento = descuentoRepo.findByProveedorId(id);
-				if (descuento != null) {
-
-					response.setDescuento(descuento);
-					response.setMensaje("Se encontró descuento.");
-					return new ResponseEntity<DescuentoResponse>(response, HttpStatus.OK);
-				} else {
-					response.setMensaje("No se ha encontrado descuento para el proveedor.");
-				}
-
-			} else {
-				response.setMensaje("No se ha encontrado el proveedor.");
-			}
-			return new ResponseEntity<DescuentoResponse>(response, HttpStatus.BAD_REQUEST);
-		} catch (Exception e) {
-			response.setMensaje("Se produjo un error interno.");
-			return new ResponseEntity<DescuentoResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -206,6 +177,74 @@ public class ProveedorController {
 		} catch (Exception e) {
 			response.setMensaje("Se produjo un error interno.");
 			return new ResponseEntity<Response>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/descuento")
+	public ResponseEntity<DescuentoResponse> getDescuentoByProveedor(@RequestParam Long id) {
+
+		DescuentoResponse response = new DescuentoResponse();
+
+		try {
+
+			ProveedorEntity proveedor = proveedorRepo.findById(id).orElse(null);
+
+			if (proveedor != null) {
+				DescuentoEntity descuento = descuentoRepo.findByProveedorId(id);
+				if (descuento != null) {
+
+					response.setDescuento(descuento);
+					response.setMensaje("Se encontró descuento.");
+					return new ResponseEntity<DescuentoResponse>(response, HttpStatus.OK);
+				} else {
+					response.setMensaje("No se ha encontrado descuento para el proveedor.");
+				}
+
+			} else {
+				response.setMensaje("No se ha encontrado el proveedor.");
+			}
+			return new ResponseEntity<DescuentoResponse>(response, HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			response.setMensaje("Se produjo un error interno.");
+			return new ResponseEntity<DescuentoResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PostMapping("/descuento")
+	public ResponseEntity<DescuentoResponse> getDescuentoByProveedor(@RequestBody DescuentoRequest descuento) {
+
+		DescuentoResponse response = new DescuentoResponse();
+
+		try {
+			ProveedorEntity proveedor = proveedorRepo.findById(descuento.getProveedorId()).orElse(null);
+			if (proveedor != null) {
+				DescuentoEntity descuentoEncontrado = descuentoRepo.findByProveedorId(descuento.getProveedorId());
+				if (descuentoEncontrado == null) {
+					DescuentoEntity nuevoDescuento = new DescuentoEntity(descuento.getPorcentaje(), proveedor);
+					descuentoRepo.save(nuevoDescuento);
+					response.setMensaje("Se ha registrado el descuento correctamente.");
+					return new ResponseEntity<DescuentoResponse>(response, HttpStatus.OK);
+				} else {
+					if (descuentoEncontrado.getFechaDelete() != null) {
+						descuentoEncontrado.setFechaDelete(null);
+						descuentoEncontrado.setFechaActualizacion(new Date());
+						descuentoEncontrado.setPorcentaje(descuento.getPorcentaje());
+						descuentoRepo.save(descuentoEncontrado);
+						response.setMensaje("Se ha registrado el descuento correctamente.");
+						return new ResponseEntity<DescuentoResponse>(response, HttpStatus.OK);
+					} else {
+						response.setMensaje("Ya tiene registrado un descuento.");
+					}
+				}
+			} else {
+				response.setMensaje("No se ha encontrado el proveedor.");
+			}
+			return new ResponseEntity<DescuentoResponse>(response, HttpStatus.BAD_REQUEST);
+		} catch (
+
+		Exception e) {
+			response.setMensaje("Se produjo un error interno.");
+			return new ResponseEntity<DescuentoResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

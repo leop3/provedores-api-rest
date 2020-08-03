@@ -19,7 +19,7 @@ public class DescuentoEntity {
 	private Long id;
 
 	@Column(name = "porcentaje")
-	private double porcentaje;
+	private Double porcentaje;
 
 	@Column(name = "fecha_insert")
 	private Date fechaInsert;
@@ -33,6 +33,15 @@ public class DescuentoEntity {
 	@OneToOne
 	@JoinColumn(name = "proveedor_id")
 	private ProveedorEntity proveedor;
+
+	public DescuentoEntity() {
+	}
+
+	public DescuentoEntity(Double porcentaje, ProveedorEntity proveedor) {
+		this.porcentaje = porcentaje;
+		this.proveedor = proveedor;
+		this.fechaInsert = new Date();
+	}
 
 	public Long getId() {
 		return id;
