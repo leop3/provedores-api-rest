@@ -10,4 +10,6 @@ public interface DescuentoRepository extends CrudRepository<DescuentoEntity, Lon
 
 	public DescuentoEntity findByProveedorId(Long id);
 
+	public DescuentoEntity findByProveedorIdAndFechaDeleteIsNull(Long id);
+
 }

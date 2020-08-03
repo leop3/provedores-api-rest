@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lepo.provedoresapirest.entities.DescuentoEntity;
 import lepo.provedoresapirest.entities.DocumentoEntity;
 import lepo.provedoresapirest.entities.ProveedorEntity;
 import lepo.provedoresapirest.entities.TipoDocumentoEntity;
 import lepo.provedoresapirest.reponse.DocumentoResponse;
+import lepo.provedoresapirest.repositories.DescuentoRepository;
 import lepo.provedoresapirest.repositories.DocumentoRepository;
 import lepo.provedoresapirest.repositories.ProveedorRepository;
 import lepo.provedoresapirest.repositories.TipoDocumentoRepository;
@@ -36,6 +38,9 @@ public class DocumentoController {
 
 	@Autowired
 	ProveedorRepository proveedorRepo;
+
+	@Autowired
+	DescuentoRepository descuentoRepo;
 
 	@GetMapping
 	public ResponseEntity<DocumentoResponse> getDocumentosByProveedor(@RequestParam Long id) {
@@ -129,11 +134,19 @@ public class DocumentoController {
 		DocumentoResponse response = new DocumentoResponse();
 
 		try {
-
 			DocumentoEntity documento = (DocumentoEntity) documentoRepo
 					.findByIdAndFechaDeleteIsNullAndEstaPagadaIsFalse(id);
 
 			if (documento != null) {
+
+				DescuentoEntity descuento = descuentoRepo
+						.findByProveedorIdAndFechaDeleteIsNull(documento.getProveedor().getId());
+
+				if (descuento != null) {
+					Double oldAmount = documento.getMonto();
+					Double newAmount = oldAmount * descuento.getPorcentaje() / 100;
+					documento.setMonto(newAmount);
+				}
 				documento.setFechaPagada(new Date());
 				documento.setEstaPagada(true);
 				documentoRepo.save(documento);
