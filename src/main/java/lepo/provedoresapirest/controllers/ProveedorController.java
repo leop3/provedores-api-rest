@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lepo.provedoresapirest.entities.DescuentoEntity;
 import lepo.provedoresapirest.entities.ProveedorEntity;
+import lepo.provedoresapirest.reponse.DescuentoResponse;
 import lepo.provedoresapirest.reponse.ProveedorResponse;
 import lepo.provedoresapirest.reponse.Response;
+import lepo.provedoresapirest.repositories.DescuentoRepository;
 import lepo.provedoresapirest.repositories.ProveedorRepository;
 
 @RestController
@@ -28,7 +31,10 @@ public class ProveedorController {
 	@Autowired
 	ProveedorRepository proveedorRepo;
 
-	@GetMapping()
+	@Autowired
+	DescuentoRepository descuentoRepo;
+
+	@GetMapping
 	public ResponseEntity<ProveedorResponse> getProveedores() {
 
 		ProveedorResponse response = new ProveedorResponse();
@@ -66,6 +72,36 @@ public class ProveedorController {
 		} catch (Exception e) {
 			response.setMensaje("Se produjo un error interno.");
 			return new ResponseEntity<ProveedorResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/descuento")
+	public ResponseEntity<DescuentoResponse> getDescuentoByProveedor(@RequestParam Long id) {
+
+		DescuentoResponse response = new DescuentoResponse();
+
+		try {
+
+			ProveedorEntity proveedor = proveedorRepo.findById(id).orElse(null);
+
+			if (proveedor != null) {
+				DescuentoEntity descuento = descuentoRepo.findByProveedorId(id);
+				if (descuento != null) {
+
+					response.setDescuento(descuento);
+					response.setMensaje("Se encontró descuento.");
+					return new ResponseEntity<DescuentoResponse>(response, HttpStatus.OK);
+				} else {
+					response.setMensaje("No se ha encontrado descuento para el proveedor.");
+				}
+
+			} else {
+				response.setMensaje("No se ha encontrado el proveedor.");
+			}
+			return new ResponseEntity<DescuentoResponse>(response, HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			response.setMensaje("Se produjo un error interno.");
+			return new ResponseEntity<DescuentoResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -172,4 +208,5 @@ public class ProveedorController {
 			return new ResponseEntity<Response>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
 }

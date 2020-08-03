@@ -8,4 +8,6 @@ import lepo.provedoresapirest.entities.DescuentoEntity;
 @Repository
 public interface DescuentoRepository extends CrudRepository<DescuentoEntity, Long> {
 
+	public DescuentoEntity findByProveedorId(Long id);
+
 }

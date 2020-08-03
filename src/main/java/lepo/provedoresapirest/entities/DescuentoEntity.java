@@ -13,6 +13,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "descuento_aplicado", schema = "mergos")
 public class DescuentoEntity {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
