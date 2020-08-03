@@ -24,6 +24,17 @@ public class UsuarioEntity {
 	@Column(name = "habilitado")
 	private Boolean habilitado;
 
+	public UsuarioEntity() {
+
+	}
+
+	public UsuarioEntity(String usuario, String contraseña) {
+		super();
+		this.usuario = usuario;
+		this.contraseña = contraseña;
+		this.habilitado = true;
+	}
+
 	public Long getId() {
 		return id;
 	}
