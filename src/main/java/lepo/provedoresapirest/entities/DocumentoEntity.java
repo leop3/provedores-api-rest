@@ -64,6 +64,7 @@ public class DocumentoEntity {
 		this.nroFactura = nroFactura;
 		this.fechaFactura = fechaFactura;
 		this.fechaInsert = fechaInsert;
+		this.estaPagada = false;
 	}
 
 	public Long getId() {
