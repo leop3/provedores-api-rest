@@ -8,4 +8,6 @@ import lepo.provedoresapirest.entities.UsuarioEntity;
 @Repository
 public interface UsuarioRepository extends CrudRepository<UsuarioEntity, Long> {
 
+	public UsuarioEntity findByUsuarioAndContraseñaAndHabilitado(String usuario, String contraseña, boolean b);
+
 }
